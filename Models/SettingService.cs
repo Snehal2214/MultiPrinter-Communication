@@ -17,7 +17,7 @@ namespace BaseApp.Models
         SqlConnection ObjSqlConnection;
         SqlCommand ObjSqlCommand;
 
-        private static List<Settings> ObjSettingList;
+        //private static List<Settings> ObjSettingList;
         public SettingService() 
         {
             ObjSqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["DBConnection"].ConnectionString);

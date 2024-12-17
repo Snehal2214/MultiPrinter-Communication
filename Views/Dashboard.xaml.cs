@@ -26,7 +26,7 @@ namespace BaseApp.Views
         {
             InitializeComponent();
             //grdList.ItemsSource = new DataTable().AsEnumerable();
-            DataContext = new BaseApp.ViewModels.Dashboard();
+            this.DataContext = new BaseApp.ViewModels.Dashboard();
             
         }
     }

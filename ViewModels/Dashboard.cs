@@ -54,12 +54,12 @@ namespace BaseApp.ViewModels
         {
             get
             {
-                return this.filePath;
+                return filePath;
             }
             set
             {
-                this.filePath = value;
-                this.OnPropertyChanged("FilePath");
+                filePath = value;
+                OnPropertyChanged("FilePath");
             }
         }
 
@@ -191,6 +191,8 @@ namespace BaseApp.ViewModels
                 }
             });
 
+
+
             ConnectCommand = new DelegateCommand(async (param) =>
             {
                 try
@@ -284,11 +286,11 @@ namespace BaseApp.ViewModels
                 System.Windows.MessageBox.Show($"Error parsing response: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private DataTable ReadExcel(string excelPath)
+        private DataTable ReadExcel(string filePath)
         {
             try
             {
-                var workbook = new XLWorkbook(excelPath);
+                var workbook = new XLWorkbook(filePath);
                 var worksheet = workbook.Worksheet(1);
                 return worksheet.RangeUsed().AsTable().AsNativeDataTable();
             }
@@ -547,7 +549,7 @@ namespace BaseApp.ViewModels
             }
         }
 
-        // Fetch all entries from the database (Modify based on your actual service)
+
         private async void FetchAllSettings()
         {
             var settingService = new SettingService();
@@ -556,12 +558,9 @@ namespace BaseApp.ViewModels
             if (settingsList != null && settingsList.Any())
             {
                 Settings = new ObservableCollection<Settings>(settingsList);
-                
+                                
             }
-            else
-            {
-                // Handle no data or show a message if needed
-            }
+            
         }
     }
 }
