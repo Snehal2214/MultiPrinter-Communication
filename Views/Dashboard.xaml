@@ -161,7 +161,7 @@
                             <Button Command="{Binding DataContext.StartCommand, RelativeSource={RelativeSource AncestorType=ListView}, UpdateSourceTrigger=PropertyChanged}" Content="Start" Margin="40,0,10,0" Background="MediumSeaGreen" Foreground="White" IsEnabled="{Binding IsStartButtonEnabled}" Style="{StaticResource DisabledButtonStyle}" Width="50"/>
                             <Button Command="{Binding DataContext.StopCommand, RelativeSource={RelativeSource AncestorType=ListView}, UpdateSourceTrigger=PropertyChanged}" Content="Stop" Background="IndianRed" Foreground="White" IsEnabled="{Binding IsStopButtonEnabled}" Style="{StaticResource DisabledButtonStyle}" Width="50"/>
 
-                            <Button Command="{Binding DataContext.ConnectCommand, RelativeSource={RelativeSource AncestorType=ListView}}" Content="Connect" Margin="130,0,0,0" CommandParameter="{Binding}"/>
+                            <Button Command="{Binding DataContext.ConnectCommand, RelativeSource={RelativeSource AncestorType=ListView}}" Content="Connect" Margin="130,0,0,0" CommandParameter="{Binding IpAddress}"/>
                             <Button Command="{Binding DataContext.SendCommand, RelativeSource={RelativeSource AncestorType=ListView}, UpdateSourceTrigger=PropertyChanged}" Content="Send" />
 
                             <TextBox Width="45" Text="{Binding DataContext.PrintedRowCount, RelativeSource={RelativeSource AncestorType=ListView}, UpdateSourceTrigger=PropertyChanged}" FontWeight="SemiBold" TextAlignment="Center" FontSize="15" />
