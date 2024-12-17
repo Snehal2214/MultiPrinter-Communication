@@ -193,7 +193,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\PrinterSetting.cs" />
     <Compile Include="Models\SettingService.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="ViewModels\Bootstrap.cs" />
