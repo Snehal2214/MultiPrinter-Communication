@@ -1,8 +1,6 @@
 ﻿using BaseApp.Models;
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Wordprocessing;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
@@ -12,7 +10,6 @@ using System.Windows;
 using System.Windows.Input;
 using WpfHelpers;
 using WpfHelpers.Controls;
-using System.ComponentModel;
 
 
 namespace BaseApp.ViewModels
@@ -26,7 +23,9 @@ namespace BaseApp.ViewModels
         public ICommand StartCommand { get; set; }
         public ICommand StopCommand { get; set; }
         public ICommand SendCommand { get; }
-
+        readonly string CRLF = "" + ((char)13) + ((char)10);
+        readonly string CR = "" + ((char)13);
+        readonly string LF = "" + ((char)10);
         private string _ipAddress;
         public string IpAddress
         {
@@ -167,7 +166,6 @@ namespace BaseApp.ViewModels
             }
         }
 
-
         public Dashboard()
         {
             // Assuming you fetch settings from the database
@@ -175,11 +173,20 @@ namespace BaseApp.ViewModels
 
             _connectionService = new ConnectionService();
             Templates = new ObservableCollection<string>();
-            StartCommand = new RelayCommand(SendStartCommand);
-            StopCommand = new RelayCommand(SendStopCommand);
-            SendCommand = new RelayCommand(SendRowToServer);
+            StartCommand = new DelegateCommand(async (printerInstance) =>
+            {
+                SendStartCommand(printerInstance);
+            });
+            StopCommand = new DelegateCommand(async (printerInstance) =>
+            {
+                SendStopCommand(printerInstance);
+            }); //new RelayCommand(SendStopCommand);
+            SendCommand = new DelegateCommand(async (printerInstance) =>
+            {
+                SendRowToServer(printerInstance);
+            }); //new RelayCommand(SendRowToServer);
 
-            OpenFileDialog = new DelegateCommand(async (param) =>
+            OpenFileDialog = new DelegateCommand(async (printerInstance) =>
             {
                 var openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
                 openFileDialog1.Filter = "CSV (*.csv,*.csv)|*.csv;*.csv|Excel (*.xlsx,*.xlsx)|*.xlsx;*.xlsx|Excel (*.xls,*.xls)|*.xls;*.xls";
@@ -229,7 +236,7 @@ namespace BaseApp.ViewModels
                                 if (_connectionService.IsConnected)
                                 {
                                     // Send the command after successful connection
-                                    string command = "GJL<CR>"; // Sample command, replace with your actual command
+                                    string command = "GJL" + CR; // Sample command, replace with your actual command
                                     _connectionService.Send(command);
 
                                     // Receive response and parse it
@@ -302,10 +309,11 @@ namespace BaseApp.ViewModels
         }
 
         //Send Start Command.
-        private async void SendStartCommand()
+        private async void SendStartCommand(object printer)
         {
             try
             {
+                Settings selectedPrinter = (Settings)printer;
                 if (_connectionService != null && _connectionService.IsConnected)
                 {
                     if (string.IsNullOrEmpty(SelectedTemplate))
@@ -313,8 +321,8 @@ namespace BaseApp.ViewModels
                         System.Windows.MessageBox.Show("Please select a template before starting", "Template Required", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
-                    string Startcommand = $"SST|1|<CR>";
-                    string Selcommand = $"SEL|{SelectedTemplate}|<CR>";
+                    string Startcommand = $"SST|1|" + CR;
+                    string Selcommand = $"SEL|{SelectedTemplate}|" + CR;
 
                     _connectionService.Send(Selcommand);
 
@@ -342,13 +350,14 @@ namespace BaseApp.ViewModels
                 System.Windows.MessageBox.Show($"Failed to send command: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private async void SendStopCommand()
+        private async void SendStopCommand(object printer)
         {
             try
             {
+                Settings selectedPrinter = (Settings)printer;
                 if (_connectionService != null && _connectionService.IsConnected)
                 {
-                    string command = "SST|4|<CR>";
+                    string command = "SST|4|" + CR;
                     _connectionService.Send(command);
 
                     // Fetch folder path from the database
@@ -404,8 +413,9 @@ namespace BaseApp.ViewModels
         //Send Excel Data.
 
         private int currentRowIndex = 0;
-        private async void SendRowToServer()
+        private async void SendRowToServer(object printer)
         {
+            Settings selectedPrinter = (Settings)printer;
             if (ExcelData == null || ExcelData.Rows.Count == 0)
             {
                 System.Windows.MessageBox.Show("No data to send. Please load an Excel file first.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -486,7 +496,7 @@ namespace BaseApp.ViewModels
             {
                 formattedRow.Append($"|VAR{i + 1}={row[i]}");
             }
-            formattedRow.Append("|<CR>");
+            formattedRow.Append("|" + CR);
             return formattedRow.ToString();
         }
 
@@ -558,9 +568,9 @@ namespace BaseApp.ViewModels
             if (settingsList != null && settingsList.Any())
             {
                 Settings = new ObservableCollection<Settings>(settingsList);
-                                
+
             }
-            
+
         }
     }
 }

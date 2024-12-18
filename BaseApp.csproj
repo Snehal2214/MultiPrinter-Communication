@@ -280,6 +280,7 @@
     <Resource Include="Resources\Images\logo.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Notes.txt" />
     <Content Include="References\WpfHelpers.dll" />
     <Resource Include="Printer.ico" />
     <Content Include="References\log4net.dll" />
