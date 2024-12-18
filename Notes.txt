@@ -1,14 +1,14 @@
-﻿Create a class named Printer, Have properties as following
+﻿1. Create a class named Printer, Have properties as following
 	Name,IP,Port,Templates,ExcelData,SocketConnection
-Create a observable collection of Printer class and assign it as itemsource to listview, <observablecollection> PrinterList
-On Dashboard constructor
-	Read settings and Initialize PrinterList, at same time connect to each instance of printer and get templates for each and assign to
+2. Create a observable collection of Printer class and assign it as itemsource to listview, <observablecollection> PrinterList
+3. On Dashboard constructor
+	3.1 Read settings and Initialize PrinterList, at same time connect to each instance of printer and get templates for each and assign to
 	Templates property of each Printer instance
 
-	When you select a file by clicking on the Browse button, Read the selected excel and assign it to ExcelData Property
+	3.2 When you select a file by clicking on the Browse button, Read the selected excel and assign it to ExcelData Property
 	to the Proper Printer instance in PrinterList collection based on the Port number that you get from printerInstance parameter in
 	OpenFileDialog = new DelegateCommand(async (printerInstance) => {});
 
-On click of start button get the printer socket based on the command parameter and send command to that specific instance
+4. On click of start button get the printer socket based on the command parameter and send command to that specific instance
 do the same for other buttons
 
