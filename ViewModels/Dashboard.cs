@@ -150,6 +150,7 @@ namespace BaseApp.ViewModels
             });
 
         }
+
         private void ParseTemplatesFromResponse(string response, ref Printer printerParameter)
         {
             try
@@ -186,6 +187,7 @@ namespace BaseApp.ViewModels
                 System.Windows.MessageBox.Show($"Error parsing response: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private DataTable ReadExcel(string filePath)
         {
             try
@@ -200,6 +202,7 @@ namespace BaseApp.ViewModels
                 return null;
             }
         }
+
 
         //Send Start Command.
         private async void SendStartCommand(object printer)
@@ -243,6 +246,7 @@ namespace BaseApp.ViewModels
                 System.Windows.MessageBox.Show($"Failed to send command: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private async void SendStopCommand(object printer)
         {
             try
@@ -281,6 +285,7 @@ namespace BaseApp.ViewModels
                 System.Windows.MessageBox.Show($"Failed to send command: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         //Send Excel Data.
         private int currentRowIndex = 0;
         private async void SendRowToServer(object printer)
@@ -340,6 +345,8 @@ namespace BaseApp.ViewModels
                 System.Windows.MessageBox.Show($"Error sending row: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+
         // Row format
         private string FormatRowForServer(DataRow row)
         {
@@ -406,6 +413,7 @@ namespace BaseApp.ViewModels
                 System.Windows.MessageBox.Show($"Failed to remove selected data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
         private async void FetchAllPrinters()
         {
             var settingService = new SettingService();

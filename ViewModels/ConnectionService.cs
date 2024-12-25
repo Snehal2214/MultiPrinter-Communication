@@ -57,19 +57,19 @@ namespace BaseApp.ViewModels
 
 
         // Method to disconnect the client
-        public void Disconnect()
-        {
-            try
-            {
-                ns?.Close();
-                _client?.Close();
-                ConnectionStatus = "Disconnected"; // Update status after disconnecting
-            }
-            catch (Exception ex)
-            {
-                ConnectionStatus = $"Error disconnecting: {ex.Message}";
-            }
-        }
+        //public void Disconnect()
+        //{
+        //    try
+        //    {
+        //        ns?.Close();
+        //        _client?.Close();
+        //        ConnectionStatus = "Disconnected"; // Update status after disconnecting
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ConnectionStatus = $"Error disconnecting: {ex.Message}";
+        //    }
+        //}
 
 
         // Check if the client is still connected
@@ -78,8 +78,8 @@ namespace BaseApp.ViewModels
         {
             try
             {
-                byte[] msgBytes = Encoding.UTF8.GetBytes(message); // Convert the message to a byte array
-                _client.Client.Send(msgBytes); // Send the message directly
+                byte[] msgBytes = Encoding.UTF8.GetBytes(message);
+                _client.Client.Send(msgBytes); 
             }
             catch (Exception ex)
             {
@@ -94,12 +94,12 @@ namespace BaseApp.ViewModels
             try
             {
                 byte[] buffer = new byte[1024];
-                int bytesRead = await ns.ReadAsync(buffer, 0, buffer.Length);  // Use ReadAsync for async operation
+                int bytesRead = await ns.ReadAsync(buffer, 0, buffer.Length);
                 if (bytesRead > 0)
                 {
                     string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     Console.WriteLine($"Received response: {response}");
-                    return response.Trim();  // Return the response to be used in SendRowToServer
+                    return response.Trim();
                 }
             }
             catch (Exception ex)
