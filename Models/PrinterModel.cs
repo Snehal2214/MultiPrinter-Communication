@@ -1,5 +1,5 @@
 ﻿using BaseApp.ViewModels;
-//using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,7 +11,7 @@ using WpfHelpers;
 
 namespace BaseApp.Models
 {
-    public class Printer : ViewModelBase
+    public class PrinterModel : ViewModelBase
     {
         private string pName;
 
@@ -87,8 +87,8 @@ namespace BaseApp.Models
                 OnPropertyChanged(nameof(Templates));
             }
         }
-        private Printer selectedPrinter;
-        public Printer SelectedPrinter
+        private PrinterModel selectedPrinter;
+        public PrinterModel SelectedPrinter
         {
             get { return selectedPrinter; }
             set
@@ -155,7 +155,7 @@ namespace BaseApp.Models
             }
         }
 
-        public Printer()
+        public PrinterModel()
         {
             SocketConnection = new ConnectionService();
         }

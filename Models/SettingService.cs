@@ -27,9 +27,9 @@ namespace BaseApp.Models
 
         }
 
-        public async Task<List<Settings>> GetAll()
+        public async Task<List<SettingsModel>> GetAll()
         {
-            List<Settings> ObjSettingList = new List<Settings>();
+            List<SettingsModel> ObjSettingList = new List<SettingsModel>();
             try
             {
                 ObjSqlCommand.Parameters.Clear();
@@ -39,10 +39,10 @@ namespace BaseApp.Models
                 var ObjSqlDataReader = ObjSqlCommand.ExecuteReader();
                 if (ObjSqlDataReader.HasRows)
                 {
-                    Settings ObjSetting = null;
+                    SettingsModel ObjSetting = null;
                     while (ObjSqlDataReader.Read())
                     {
-                        ObjSetting = new Settings();
+                        ObjSetting = new SettingsModel();
                         ObjSetting.Id = ObjSqlDataReader.GetInt32(0);
                         ObjSetting.PName = ObjSqlDataReader.GetString(1);
                         ObjSetting.IpAddress = ObjSqlDataReader.GetString(2);
@@ -66,7 +66,7 @@ namespace BaseApp.Models
         }
 
 
-        public async Task<bool> Save(Printer ObjSetting)
+        public async Task<bool> Save(PrinterModel ObjSetting)
         {
             bool isSaved = false;
 

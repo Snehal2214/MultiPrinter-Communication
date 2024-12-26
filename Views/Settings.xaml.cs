@@ -26,8 +26,6 @@ namespace BaseApp.Views
         {
             InitializeComponent();
             DataContext = new BaseApp.ViewModels.Settings();
-
         }
-
     }
 }

@@ -201,8 +201,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\Printer.cs" />
+    <Compile Include="Models\PrinterModel.cs" />
     <Compile Include="Models\SettingService.cs" />
+    <Compile Include="Models\SettingsModel.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="ViewModels\Bootstrap.cs" />
     <Compile Include="ViewModels\ConnectionService.cs" />

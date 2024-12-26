@@ -7,7 +7,6 @@ using BaseApp.Models;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Linq;
-//using System.Data.Linq;
 using System.IO;
 
 namespace BaseApp.ViewModels
@@ -16,8 +15,7 @@ namespace BaseApp.ViewModels
     public class Settings : ViewModelBase
     {
 
-        SettingService ObjSettingService;
-        Printer Printer;
+        private readonly SettingService ObjSettingService;
 
         public ICommand OpenFileDialog { get; set; }
         public ICommand SaveCommand { get; }
@@ -52,12 +50,12 @@ namespace BaseApp.ViewModels
         {
             get
             {
-                return this._ExcelPath;
+                return _ExcelPath;
             }
             set
             {
-                this._ExcelPath = value;
-                this.OnPropertyChanged("ExcelPath");
+                _ExcelPath = value;
+                OnPropertyChanged("ExcelPath");
             }
         }
 
@@ -71,15 +69,15 @@ namespace BaseApp.ViewModels
         }
 
 
-        private ObservableCollection<Settings> settingList;
-        public ObservableCollection<Settings> SettingList
+        private ObservableCollection<SettingsModel> settingList;
+        public ObservableCollection<SettingsModel> SettingList
         {
             get { return settingList; }
             set { settingList = value; OnPropertyChanged("SettingList"); }
         }
 
-        private Settings _selectedSetting;
-        public Settings SelectedSetting
+        private SettingsModel _selectedSetting;
+        public SettingsModel SelectedSetting
         {
             get => _selectedSetting;
             set
@@ -90,25 +88,24 @@ namespace BaseApp.ViewModels
             }
         }
 
-        public object SelectedTemplate { get; internal set; }
-
+       
         public Settings()
         {
             ObjSettingService = new SettingService();
-            //Printer printer = new Printer();
+
+            LoadDataAsync();
 
             OpenFileDialog = new DelegateCommand((param) =>
             {
                 using (var folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog())
                 {
                     folderBrowserDialog.Description = "Select a Folder";
-                    folderBrowserDialog.ShowNewFolderButton = true; // Allow creating new folders if necessary
+                    folderBrowserDialog.ShowNewFolderButton = true;
 
                     var result = folderBrowserDialog.ShowDialog();
                     if (result == System.Windows.Forms.DialogResult.OK)
                     {
-                        ExcelPath = folderBrowserDialog.SelectedPath; // Store the selected folder path
-                        //ReadExcel(ExcelPath);
+                        ExcelPath = folderBrowserDialog.SelectedPath;
                     }
 
                 }
@@ -117,20 +114,19 @@ namespace BaseApp.ViewModels
 
             SaveCommand = new DelegateCommand(async (param) =>
             {
+                
                 try
                 {
-                    // Fetch all settings from the database to validate against
                     var allSettings = await Task.Run(() => ObjSettingService.GetAll());
 
-                    // Check for duplicate port in the current SettingList
                     if (allSettings.Any(s => s.Port == this.Port && s.Id != this.Id))
                     {
                         System.Windows.MessageBox.Show($"The port number {this.Port} is already in use. Please enter a different port.",
                                                         "Duplicate Port", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return; // Stop execution if a duplicate is found
+                        return;
                     }
 
-                    var newSetting = new Printer
+                    var newSetting = new PrinterModel
                     {
                         Id = this.Id,
                         PName = this.PName,
@@ -139,13 +135,11 @@ namespace BaseApp.ViewModels
                         ExcelPath = this.ExcelPath,
                     };
 
-                    //bool success = await Task.Run(() => ObjSettingService.Save(newSetting)); // Run database operation in a background thread.
                     bool success = await ObjSettingService.Save(newSetting);
 
                     if (success)
                     {
-                        await LoadDataAsync(); // Refresh the DataGrid
-                        //System.Windows.MessageBox.Show("Settings saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        LoadDataAsync();
                     }
                     else
                     {
@@ -158,20 +152,15 @@ namespace BaseApp.ViewModels
                 }
             });
 
-            //LoadDataAsync();
         }
 
-
-
-        private async Task LoadDataAsync()
+        private void LoadDataAsync()
         {
             try
             {
-                var data = await Task.Run(() => ObjSettingService.GetAll());
-
-
-                SettingList = new ObservableCollection<Settings>(data);
-
+                var data = ObjSettingService.GetAll().Result;
+                SettingList = new ObservableCollection<SettingsModel>(data);
+               
             }
             catch (Exception ex)
             {
@@ -179,12 +168,6 @@ namespace BaseApp.ViewModels
             }
         }
 
-
-
-        //private void ReadExcel(string excelPath)
-        //{
-
-        //}
 
         private void PopulateFieldsFromSelectedSetting()
         {
@@ -198,15 +181,12 @@ namespace BaseApp.ViewModels
             }
             else
             {
-                // Clear fields when no item is selected.
-
                 PName = string.Empty;
                 IpAddress = string.Empty;
                 Port = 0;
                 ExcelPath = string.Empty;
             }
         }
-
 
     }
 }

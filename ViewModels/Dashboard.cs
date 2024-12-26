@@ -39,8 +39,8 @@ namespace BaseApp.ViewModels
             }
         }
 
-        private ObservableCollection<Printer> _printer;
-        public ObservableCollection<Printer> PrinterList
+        private ObservableCollection<PrinterModel> _printer;
+        public ObservableCollection<PrinterModel> PrinterList
         {
             get { return _printer; }
             set
@@ -49,20 +49,10 @@ namespace BaseApp.ViewModels
                 OnPropertyChanged(nameof(PrinterList));
             }
         }
-        private Printer selectedPrinter;
-        public Printer SelectedPrinter
-        {
-            get { return selectedPrinter; }
-            set
-            {
-                selectedPrinter = value;
-                OnPropertyChanged(nameof(SelectedPrinter));
-            }
-        }
-
+        
         public Dashboard()
         {
-            PrinterList = new ObservableCollection<Printer>();
+            PrinterList = new ObservableCollection<PrinterModel>();
 
             FetchAllPrinters();
 
@@ -74,11 +64,11 @@ namespace BaseApp.ViewModels
             StopCommand = new DelegateCommand(async (Printer) =>
             {
                 SendStopCommand(Printer);
-            }); //new RelayCommand(SendStopCommand);
+            });
             SendCommand = new DelegateCommand(async (Printer) =>
             {
                 SendRowToServer(Printer);
-            }); //new RelayCommand(SendRowToServer);
+            });
 
 
             OpenFileDialog = new DelegateCommand(async (currentPrinter) =>
@@ -88,8 +78,8 @@ namespace BaseApp.ViewModels
                 System.Windows.Forms.DialogResult result = openFileDialog1.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK)
                 {
-                    Printer printer = (Printer)currentPrinter;
-                    Printer selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == printer.Port);
+                    PrinterModel printer = (PrinterModel)currentPrinter;
+                    PrinterModel selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == printer.Port);
                     selectedPrinter.FilePath = openFileDialog1.FileName;
                     selectedPrinter.ExcelData = ReadExcel(selectedPrinter.FilePath);
                 }
@@ -100,9 +90,8 @@ namespace BaseApp.ViewModels
             {
                 try
                 {
-
-                    Printer printer = (Printer)param;
-                    Printer selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == printer.Port);
+                    PrinterModel printer = (PrinterModel)param;
+                    PrinterModel selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == printer.Port);
 
                     try
                     {
@@ -120,38 +109,33 @@ namespace BaseApp.ViewModels
 
                             if (selectedPrinter.SocketConnection.IsConnected)
                             {
-                                // Send the command after successful connection
                                 string command = "GJL" + CR;
                                 selectedPrinter.SocketConnection.Send(command);
 
-                                // Receive response and parse it
                                 string response = await selectedPrinter.SocketConnection.Receive();
                                 ParseTemplatesFromResponse(response, ref selectedPrinter);
                             }
                         }
                         else
                         {
-                            // Show failure message if connection fails
                             System.Windows.MessageBox.Show($"Failed to connect to {printerName} at {ipAddress}:{port}.", "Connection Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
                     catch (Exception innerEx)
                     {
-                        // Handle individual printer connection errors
                         System.Windows.MessageBox.Show($"Error while connecting to {printer.PName}: {innerEx.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
 
                 }
                 catch (Exception ex)
                 {
-                    // Handle overall connection errors
                     System.Windows.MessageBox.Show($"Error while connecting to the server: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             });
 
         }
 
-        private void ParseTemplatesFromResponse(string response, ref Printer printerParameter)
+        private void ParseTemplatesFromResponse(string response, ref PrinterModel printerParameter)
         {
             try
             {
@@ -163,7 +147,7 @@ namespace BaseApp.ViewModels
 
                 var templates = parts.Skip(2).Take(parts.Length - 3);
                 int port = printerParameter.Port;
-                Printer selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == port);
+                PrinterModel selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == port);
 
                 if (selectedPrinter != null)
                 {
@@ -171,15 +155,14 @@ namespace BaseApp.ViewModels
                     {
                         selectedPrinter.Templates = new ObservableCollection<string>();
                     }
-                    //selectedPrinter.Templates.Clear();
+
+                    selectedPrinter.Templates.Clear();
                     List<string> selTemplates = new List<string>();
                     foreach (var template in templates)
                     {
                         selTemplates.Add(template);
                     }
                     selectedPrinter.Templates = new ObservableCollection<string>(selTemplates);
-
-                    //System.Windows.MessageBox.Show("Templates updated successfully.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
@@ -209,9 +192,8 @@ namespace BaseApp.ViewModels
         {
             try
             {
-                Printer selectedPrinter = (Printer)printer;
-                // Printer start = PrinterList.FirstOrDefault(p => p.Port == selectedPrinter.Port);
-
+                PrinterModel selectedPrinter = (PrinterModel)printer;
+                
                 if (selectedPrinter.SocketConnection != null && selectedPrinter.SocketConnection.IsConnected)
                 {
                     if (string.IsNullOrEmpty(selectedPrinter.SelectedTemplate))
@@ -224,15 +206,14 @@ namespace BaseApp.ViewModels
                     string Selcommand = $"SEL|{selectedPrinter.SelectedTemplate}|" + CR;
 
                     selectedPrinter.SocketConnection.Send(Selcommand);
-                    // wait for ACK
+                   
                     string response = await selectedPrinter.SocketConnection.Receive();
                     if (response == "ACK")
                     {
                         selectedPrinter.SocketConnection.Send(Startcommand);
-                        // Set the flag to true when the Start command is sent successfully
+                        
                         IsStartCommandSent = true;
                     }
-                    // Disable Start button and enable Stop button
                     selectedPrinter.IsStartButtonEnabled = false;
                     selectedPrinter.IsStopButtonEnabled = true;
                 }
@@ -251,7 +232,7 @@ namespace BaseApp.ViewModels
         {
             try
             {
-                Printer selectedPrinter = (Printer)printer;
+                PrinterModel selectedPrinter = (PrinterModel)printer;
                 if (selectedPrinter.SocketConnection != null && selectedPrinter.SocketConnection.IsConnected)
                 {
                     string command = "SST|4|" + CR;
@@ -267,9 +248,9 @@ namespace BaseApp.ViewModels
                     // Generate the filename based on the current date and time
                     string fileName = $"Data_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
                     string newFilePath = Path.Combine(folderPath, fileName);
-                    // Store the selected data in the new file
+                    
                     StoreDataInNewFile(newFilePath, selectedPrinter);
-                    // Disable Stop button and enable Start button
+                   
                     selectedPrinter.IsStartButtonEnabled = true;
                     selectedPrinter.IsStopButtonEnabled = false;
 
@@ -290,7 +271,7 @@ namespace BaseApp.ViewModels
         private int currentRowIndex = 0;
         private async void SendRowToServer(object printer)
         {
-            Printer selectedPrinter = (Printer)printer;
+            PrinterModel selectedPrinter = (PrinterModel)printer;
             if (selectedPrinter.ExcelData == null || selectedPrinter.ExcelData.Rows.Count == 0)
             {
                 System.Windows.MessageBox.Show("No data to send. Please load an Excel file first.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -310,7 +291,7 @@ namespace BaseApp.ViewModels
             {
                 if (!selectedPrinter.ExcelData.Columns.Contains("Status"))
                 {
-                    selectedPrinter.ExcelData.Columns.Add("Status", typeof(string)); // Add a Status column if not present
+                    selectedPrinter.ExcelData.Columns.Add("Status", typeof(string));
                 }
                 while (currentRowIndex < selectedPrinter.ExcelData.Rows.Count)
                 {
@@ -318,14 +299,14 @@ namespace BaseApp.ViewModels
 
                     string message = FormatRowForServer(currentRow);
                     selectedPrinter.SocketConnection.Send(message);
-                    string response = await selectedPrinter.SocketConnection.Receive();  // Await the server response
+                    string response = await selectedPrinter.SocketConnection.Receive();
                     if (response == "PRC")
                     {
                         selectedPrinter.PrintedRowCount++;
                         currentRow["Status"] = "Acknowledged";
 
                         selectedPrinter.ExcelData.AcceptChanges();
-                        currentRowIndex++;  // Only move to the next row if we received the correct acknowledgment
+                        currentRowIndex++; 
                     }
                     else
                     {
@@ -359,16 +340,15 @@ namespace BaseApp.ViewModels
             formattedRow.Append("|" + CR);
             return formattedRow.ToString();
         }
-        private void StoreDataInNewFile(string newFilePath, Printer printer)
+
+        private void StoreDataInNewFile(string newFilePath, PrinterModel printer)
         {
-            //  Printer selectedPrinter = (Printer)printer;
-            Printer selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == printer.Port);
+            PrinterModel selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == printer.Port);
             try
             {
                 var newWorkbook = new XLWorkbook();
                 var newWorksheet = newWorkbook.AddWorksheet("StoredData");
 
-                // Assuming "Status" column is used to highlight rows
                 var selectedRows = selectedPrinter.ExcelData.Select("Status = 'Acknowledged'");
 
                 if (selectedRows.Length > 0)
@@ -392,10 +372,11 @@ namespace BaseApp.ViewModels
             }
         }
 
+
         // Remove the selected data from the original ExcelData DataTable
-        private void RemoveSelectedDataFromOriginal(Printer printer)
+        private void RemoveSelectedDataFromOriginal(PrinterModel printer)
         {
-            Printer selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == printer.Port);
+            PrinterModel selectedPrinter = PrinterList.FirstOrDefault(p => p.Port == printer.Port);
 
             try
             {
@@ -414,6 +395,7 @@ namespace BaseApp.ViewModels
             }
         }
 
+
         private async void FetchAllPrinters()
         {
             var settingService = new SettingService();
@@ -421,7 +403,7 @@ namespace BaseApp.ViewModels
 
             if (settingsList != null && settingsList.Any())
             {
-                var printerList = settingsList.Select(s => new Printer
+                var printerList = settingsList.Select(s => new PrinterModel
                 {
                     PName = s.PName,
                     IpAddress = s.IpAddress,
@@ -429,7 +411,7 @@ namespace BaseApp.ViewModels
                     ExcelPath = s.ExcelPath,
                 }).ToList();
 
-                PrinterList = new ObservableCollection<Printer>(printerList);
+                PrinterList = new ObservableCollection<PrinterModel>(printerList);
             }
 
         }
